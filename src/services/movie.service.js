@@ -35,15 +35,18 @@ const queryMovies = async (req,res) => {
     };
     if (page < numPages) {
       movies.pagination = {
-        pageNumber: numPages,
+        pageNumber: numPages - 1,
         current: page,
         perPage: numPerPage,
         previous: page > 0 ? page - 1 : undefined,
         next: page < numPages - 1 ? page + 1 : undefined
       }
     }
-    else moovies.pagination = {
+    else {
+      movies.pagination = {
       err: 'queried page ' + page + ' is >= to maximum page number ' + numPages
+      }
+      res.send('Page out of range')
     }
 
     res.send(movies)

@@ -35,6 +35,7 @@ const queryMovies = async (req,res) => {
     };
     if (page < numPages) {
       movies.pagination = {
+        pageNumber: numPages,
         current: page,
         perPage: numPerPage,
         previous: page > 0 ? page - 1 : undefined,

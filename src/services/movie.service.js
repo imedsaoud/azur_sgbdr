@@ -13,15 +13,44 @@ const pool = require('./../config/mariadb');
  * @param {number} [options.page] - Current page (default = 1)
  * @returns {Promise<QueryResult>}
  */
-const queryMovies = async (filter, options,db) => {
+const queryMovies = async (req,res) => {
 
+  var numRows;
+  var queryPagination;
+  var numPerPage = parseInt(req.query.itemPerPage, 10) || 1;
+  var page = parseInt(req.query.currentPage, 10) || 0;
+  var numPages;
+  var skip = page * numPerPage;
+  var limit = skip + ',' + numPerPage;
+  pool.query('SELECT count(*) as numRows FROM film')
+  .then(function(results) {
+    numRows = results[0].numRows;
+    numPages = Math.ceil(numRows / numPerPage);
+    console.log('number of pages:', numPages);
+  })
+  .then(() => pool.query('SELECT * FROM film ORDER BY ' + req.query.filteredItem + ' ' + req.query.sort +  ' LIMIT ' + limit))
+  .then(function(results) {
+    var movies = {
+      movies: results
+    };
+    if (page < numPages) {
+      movies.pagination = {
+        current: page,
+        perPage: numPerPage,
+        previous: page > 0 ? page - 1 : undefined,
+        next: page < numPages - 1 ? page + 1 : undefined
+      }
+    }
+    else moovies.pagination = {
+      err: 'queried page ' + page + ' is >= to maximum page number ' + numPages
+    }
 
-  var userQuery = 'select * from film limit 10';
+    res.send(movies)
 
-  movies = pool.query(userQuery)
-
-  // const users = await User.paginate(filter, options);
-  return movies;
+  })
+  .catch(function(err) {
+    console.error(err);
+  });
 };
 
 

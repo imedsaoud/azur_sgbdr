@@ -6,10 +6,7 @@ const { movieService } = require('../services');
 
 
 const getMovies = catchAsync(async (req, res) => {
-  const filter = pick(req.query, ['name', 'role']);
-  const options = pick(req.query, ['sortBy', 'limit', 'page']);
-  const result = await movieService.queryMovies(filter, options);
-  res.send(result);
+  const result = await movieService.queryMovies(req,res);
 });
 
 module.exports = {
